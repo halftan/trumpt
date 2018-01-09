@@ -7,3 +7,15 @@
 
 // Bootstrap
 @import "~bootstrap-sass/assets/stylesheets/bootstrap";
+
+.list-group-item:hover {
+    background-color: #efefef;
+}
+
+#display.affix {
+    top: 10px;
+}
+
+.scrollable {
+    overflow-y: scroll;
+}
