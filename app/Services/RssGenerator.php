@@ -34,12 +34,16 @@ EOT;
     {
         $xml = '';
         foreach ($this->entries as $entry) {
+            foreach ($entry as $key => $value) {
+                $entry[$key] = htmlspecialchars($value);
+            }
             $xml .= <<<EOT
   <item>
     <title>{$entry['title']}</title>
     <link>{$entry['link']}</link>
     <description>{$entry['description']}</description>
   </item>
+
 EOT;
         }
 
