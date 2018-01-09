@@ -52,3 +52,38 @@ Route::get('/article/{id}', function ($articleId) {
 
     return response()->json($article);
 });
+
+Route::get('/feed', function (Request $request) {
+    if (Cache::has('feed')) {
+        $entries = Cache::get('feed');
+    } else {
+        $articles = collect(Redis::lRange('trumpt:cnn-articles', 0, 24))->map(function ($item) {
+            return json_decode($item, true);
+        })->map(function ($item) {
+            return [
+                'title' => $item['url'],
+                'link' => $item['headline'],
+                'description' => $item['body'],
+            ];
+        });
+        $tweets = collect(Redis::lRange('trumpt:tweets', 0, 24))->map(function ($item) {
+            return json_decode($item, true);
+        })->map(function ($item) {
+            return [
+                'title' => $item['text'],
+                'link' => array_get($item, 'entities.urls.expanded_url'),
+                'description' => $item['text'],
+            ];
+        });
+        $entries = $articles->merge($tweets);
+        Cache::put('feed', $entries, 5);
+    }
+
+
+    $rssGenerator = resolve('rssGenerator');
+    $rssGenerator->setEntries($entries);
+
+    return response($rssGenerator->toXml(), 200)
+            ->header('Content-Type', 'application/rss+xml');
+
+});
