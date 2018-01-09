@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Redis;
 
 class CrawlCnn extends Command
 {
@@ -37,6 +38,7 @@ class CrawlCnn extends Command
      */
     public function handle()
     {
+        // fetch articles from CNN
         $client = new \GuzzleHttp\Client();
         /** @var $resp \Psr\Http\Message\ResponseInterface */
         $resp = $client->get('https://search.api.cnn.io/content', [
@@ -59,5 +61,12 @@ class CrawlCnn extends Command
         }
 
         // process the articles
+        // pass
+
+        // save to redis
+        while (($article = array_pop($cnnNews))) {
+            Redis::lPush('trumpt:cnn-articles', json_encode($article));
+        }
+        Redis::lTrim('trumpt:cnn-articles', 0, 24);
     }
 }

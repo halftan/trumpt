@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Redis;
 
 class CrawlTwitter extends Command
 {
@@ -18,7 +19,7 @@ class CrawlTwitter extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Crawl Twitter for Trumpts';
 
     /**
      * Create a new command instance.
@@ -37,13 +38,31 @@ class CrawlTwitter extends Command
      */
     public function handle()
     {
-        //
+        // latest tweet id stored in redis
+        $lastTweet = Redis::lIndex('trumpt:tweets', 0);
+        if (!empty($lastTweet)) {
+            $lastId = data_get(@json_decode($lastTweet, true), 'id');
+        }
+        // fetch tweets
         $tweets = json_decode(\Twitter::getUserTimeline([
             'screen_name' => 'realDonaldTrump',
             'count' => 25,
             'format' => 'json',
-        ]), true);
+            'trim_user' => 1,
+        ] + (empty($lastId) ? [] : ['since_id' => $lastId]), true));
 
-        dd($tweets);
+        if (empty($tweets)) {
+            $this->error('Empty tweets.');
+            return;
+        }
+
+        // process tweets
+        $this->info('Crawled ' . count($tweets) . ' tweets.');
+
+        // save to redis
+        while (($tt = array_pop($tweets))) {
+            Redis::lPush('trumpt:tweets', json_encode($tt));
+        }
+        Redis::lTrim('trumpt:tweets', 0, 24);
     }
 }
