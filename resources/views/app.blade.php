@@ -39,6 +39,7 @@
 
                     <!-- Right Side Of Navbar -->
                     <ul class="nav navbar-nav navbar-right">
+                        <li><a href="https://twitter.com/trumptBot" target="_blank">@trumptBot</a></li>
                         <li><a href="/feed" target="_blank">#RSS</a></li>
                     </ul>
                 </div>
