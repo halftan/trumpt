@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use App\Services\RssGenerator;
+use App\Services\BotService;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -26,6 +27,10 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->bind('rssGenerator', function () {
             return new RssGenerator();
+        });
+
+        $this->app->bind('botService', function () {
+            return new BotService();
         });
     }
 }

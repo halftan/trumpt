@@ -61,11 +61,20 @@ class CrawlCnn extends Command
         }
 
         // process the articles
-        // pass
+        $currentIds = collect(Redis::lRange('trumpt:cnn-articles', 0, -1))->map(function ($item) {
+            return array_get(json_decode($item, true), '_id');
+        })->filter();
 
         // save to redis
         while (($article = array_pop($cnnNews))) {
+            if ($currentIds->search($article['_id']) !== false) {
+                // already exists
+                continue;
+            }
             Redis::lPush('trumpt:cnn-articles', json_encode($article));
+            // tweet bot's action
+            $bot = resolve('botService');
+            $bot->tweetArticle($article);
         }
         Redis::lTrim('trumpt:cnn-articles', 0, 24);
     }
