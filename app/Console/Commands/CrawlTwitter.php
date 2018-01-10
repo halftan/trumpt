@@ -49,7 +49,7 @@ class CrawlTwitter extends Command
             'count' => 25,
             'format' => 'json',
             'trim_user' => 1,
-        ] + (empty($lastId) ? [] : ['since_id' => $lastId]), true));
+        ] + (empty($lastId) ? [] : ['since_id' => $lastId])), true);
 
         if (empty($tweets)) {
             $this->error('Empty tweets.');
