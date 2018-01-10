@@ -72,9 +72,11 @@ class CrawlCnn extends Command
                 continue;
             }
             Redis::lPush('trumpt:cnn-articles', json_encode($article));
-            // tweet bot's action
-            $bot = resolve('botService');
-            $bot->tweetArticle($article);
+            if (app()->environment() != 'testing') {
+                // tweet bot's action
+                $bot = resolve('botService');
+                $bot->tweetArticle($article);
+            }
         }
         Redis::lTrim('trumpt:cnn-articles', 0, 24);
     }

@@ -61,9 +61,11 @@ class CrawlTwitter extends Command
 
         // save to redis
         while (($tt = array_pop($tweets))) {
-            // tweet bot's action
-            $bot = resolve('botService');
-            $bot->retweet($tt['id']);
+            if (app()->environment() != 'testing') {
+                // tweet bot's action
+                $bot = resolve('botService');
+                $bot->retweet($tt['id']);
+            }
             Redis::lPush('trumpt:tweets', json_encode($tt));
         }
         Redis::lTrim('trumpt:tweets', 0, 24);

@@ -18,6 +18,7 @@ class CrawlerTest extends TestCase
     public function testCnnCrawler()
     {
         Redis::shouldReceive('lPush');
+        Redis::shouldReceive('lRange');
         Redis::shouldReceive('lTrim')->once();
 
         Artisan::call('crawl:cnn');
